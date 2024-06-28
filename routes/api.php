@@ -10,6 +10,8 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/registeruser', [authController::class, 'register']);
 
-Route::get('/test', function () {
-    return response()->json(['message' => 'API is working']);
-});
+
+// For testing the Router or API work or not.
+// Route::get('/test', function () {
+//     return response()->json(['message' => 'API is working']);
+// });
