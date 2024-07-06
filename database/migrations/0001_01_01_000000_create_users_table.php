@@ -23,6 +23,20 @@ class CreateUsersTable extends Migration
             $table->string('identity_card_number')->unique();
             $table->timestamps(); // Adds created_at and updated_at columns
         });
+
+        // Insert default admin user
+        DB::table('users')->insert([
+            'username' => 'admin',
+            'email' => 'admin@vitalminder.com',
+            'password' => Hash::make('Admin1234@'), // Make sure to hash the password
+            'date_of_birth' => '0001-01-01',
+            'gender' => 'male',
+            'phone_number' => '1234567890',
+            'user_role' => 'admin',
+            'identity_card_number' => '12345678901',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**
