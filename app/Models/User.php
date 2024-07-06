@@ -1,34 +1,39 @@
 <?php
 
-use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Hash;
-use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+namespace App\Models;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
-// Grouped API routes with middleware
-Route::prefix('api')->group(function () {
-    Route::post('/sanctum/token', function (Request $request) {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-            'device_name' => 'required',
-        ]);
+class User extends Authenticatable
+{
+    use HasFactory, HasApiTokens, Notifiable;
 
-        $user = User::where('email', $request->email)->first();
+    protected $fillable = [
+        'username',
+        'email',
+        'password',
+        'date_of_birth',
+        'gender',
+        'phone_number',
+        'user_role',
+        'identity_card_number'
+    ];
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
+    public function patient()
+    {
+        return $this->hasOne(Patient::class);
+    }
 
-        return response()->json(['token' => $user->createToken($request->device_name)->plainTextToken]);
-    });
+    public function doctor()
+    {
+        return $this->hasOne(Doctor::class);
+    }
 
-    Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-        return $request->user();
-    });
-});
+    public function paramedicStaff()
+    {
+        return $this->hasOne(ParamedicStaff::class);
+    }
+}

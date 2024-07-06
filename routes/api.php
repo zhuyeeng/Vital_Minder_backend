@@ -10,8 +10,7 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/registeruser', [authController::class, 'register']);
 
-
-// For testing the Router or API work or not.
-// Route::get('/test', function () {
-//     return response()->json(['message' => 'API is working']);
-// });
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
