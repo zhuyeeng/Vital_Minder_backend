@@ -23,7 +23,7 @@ class CreateDoctorsTable extends Migration
             $table->string('clinic_address');
             $table->string('qualifications');
             $table->integer('years_of_experience');
-            $table->date('schedule');
+            $table->date('schedule')->nullable;
             $table->enum('account_status', ['active', 'inactive', 'suspended'])->default('active'); // Add account_status column
             $table->timestamps();
         });
