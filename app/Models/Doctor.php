@@ -19,7 +19,7 @@ class Doctor extends Model
         'doctor_date_of_birth',
         'specialization',
         'clinic_address',
-        'qualificatioins',
+        'qualifications', // Corrected this line
         'years_of_experience',
         'schedule',
         'account_status',

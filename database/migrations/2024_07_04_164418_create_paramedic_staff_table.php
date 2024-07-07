@@ -11,7 +11,7 @@ class CreateParamedicStaffTable extends Migration
     public function up(): void
     {
         Schema::create('paramedic_staff', function (Blueprint $table) {
-            $table->string('paramedic_staff_id')->primary();
+            $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Foreign key reference to users table
             $table->string('paramedic_staff_name');
             $table->string('paramedic_staff_phone_number')->nullable();
@@ -22,7 +22,7 @@ class CreateParamedicStaffTable extends Migration
             $table->string('qualifications');
             $table->integer('field_experience');
             $table->string('assigned_area');
-            $table->date('schedule')->nullable;
+            $table->date('schedule')->nullable();
             $table->enum('account_status', ['active', 'inactive', 'suspended'])->default('active'); // Add account_status column
             $table->timestamps();
         });

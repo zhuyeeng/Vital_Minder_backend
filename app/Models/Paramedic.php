@@ -9,6 +9,8 @@ class Paramedic extends Model
 {
     use HasFactory;
 
+    protected $table = 'paramedic_staff';
+
     protected $fillable = [
         'user_id',
         'paramedic_staff_name',
@@ -17,7 +19,7 @@ class Paramedic extends Model
         'paramedic_staff_password',
         'paramedic_staff_gender',
         'paramedic_staff_date_of_birth',
-        'qualification',
+        'qualifications',
         'field_experience',
         'assigned_area',
         'schedule',

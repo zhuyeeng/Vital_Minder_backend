@@ -16,6 +16,9 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        // Log the entire request data
+        Log::info($request->all());
+    
         // Define validation rules based on the user role
         $commonRules = [
             'name' => 'required',
@@ -27,31 +30,33 @@ class AuthController extends Controller
             'identity_card_number' => 'required|unique:users,identity_card_number',
             'user_role' => 'required|in:patient,doctor,paramedic'
         ];
-
+    
         $roleSpecificRules = [];
-
+    
         if ($request->user_role == 'doctor') {
             $roleSpecificRules = [
+                'qualifications' => 'required',
                 'specialization' => 'required',
                 'clinic_address' => 'required',
                 'years_of_experience' => 'required|integer'
             ];
         } elseif ($request->user_role == 'paramedic') {
             $roleSpecificRules = [
+                'qualifications' => 'required',
                 'assigned_area' => 'required',
                 'field_experience' => 'required|integer'
             ];
         }
-
+    
         $validator = Validator::make($request->all(), array_merge($commonRules, $roleSpecificRules));
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'false',
                 'data' => $validator->errors()
             ], 422);
         }
-
+    
         // Create the user
         $user = User::create([
             'username' => $request->name,
@@ -63,7 +68,7 @@ class AuthController extends Controller
             'user_role' => $request->user_role,
             'identity_card_number' => $request->identity_card_number,
         ]);
-
+    
         // Create the role-specific model
         if ($user->user_role == 'patient') {
             Patient::create([
@@ -76,7 +81,8 @@ class AuthController extends Controller
                 'date_of_birth' => $user->date_of_birth,
                 'identity_card_number' => $user->identity_card_number
             ]);
-        } elseif ($user->user_role == 'doctor') {
+        } else if ($user->user_role == 'doctor') {
+            //return $request;
             Doctor::create([
                 'user_id' => $user->id,
                 'doctor_name' => $user->username,
@@ -87,12 +93,12 @@ class AuthController extends Controller
                 'doctor_date_of_birth' => $user->date_of_birth,
                 'specialization' => $request->specialization,
                 'clinic_address' => $request->clinic_address,
-                'qualifications' => $request->qualification,
+                'qualifications' => $request->qualifications, // Ensure this matches
                 'years_of_experience' => $request->years_of_experience,
                 'schedule' => null, // Default to null
                 'account_status' => 'active' // Default to active
             ]);
-        } elseif ($user->user_role == 'paramedic') {
+        } else if ($user->user_role == 'paramedic') {
             Paramedic::create([
                 'user_id' => $user->id,
                 'paramedic_staff_name' => $user->username,
@@ -101,23 +107,24 @@ class AuthController extends Controller
                 'paramedic_staff_password' => $user->password,
                 'paramedic_staff_gender' => $user->gender,
                 'paramedic_staff_date_of_birth' => $user->date_of_birth,
-                'qualification' => $request->qualification,
+                'qualifications' => $request->qualifications, // Ensure this matches
                 'field_experience' => $request->field_experience,
                 'assigned_area' => $request->assigned_area,
                 'schedule' => null, // Default to null
                 'account_status' => 'active' // Default to active
             ]);
         }
-
+    
         // Generate token for the new user
         //$token = $user->createToken('auth_token')->plainTextToken;
-
+    
         return response()->json([
             'status' => 'true',
             'message' => 'User Register Successful',
             //'token' => $token
         ]);
     }
+
 
     public function login(Request $request)
     {
