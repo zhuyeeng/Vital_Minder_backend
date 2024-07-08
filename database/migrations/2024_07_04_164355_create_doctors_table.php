@@ -23,8 +23,8 @@ class CreateDoctorsTable extends Migration
             $table->string('clinic_address');
             $table->string('qualifications'); // Ensure this is not nullable
             $table->integer('years_of_experience');
-            $table->date('schedule')->nullable();
-            $table->enum('account_status', ['active', 'inactive', 'suspended'])->default('active');
+            $table->enum('account_status', ['active', 'inactive', 'suspended', 'banned']);
+            $table->string('doctor_identity_card_number')->unique();
             $table->timestamps();
         });
     }

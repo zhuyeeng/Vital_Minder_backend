@@ -95,8 +95,8 @@ class AuthController extends Controller
                 'clinic_address' => $request->clinic_address,
                 'qualifications' => $request->qualifications, // Ensure this matches
                 'years_of_experience' => $request->years_of_experience,
-                'schedule' => null, // Default to null
-                'account_status' => 'active' // Default to active
+                'account_status' => 'active', // Default to active
+                'doctor_identity_card_number' => $user->identity_card_number
             ]);
         } else if ($user->user_role == 'paramedic') {
             Paramedic::create([
@@ -110,8 +110,8 @@ class AuthController extends Controller
                 'qualifications' => $request->qualifications, // Ensure this matches
                 'field_experience' => $request->field_experience,
                 'assigned_area' => $request->assigned_area,
-                'schedule' => null, // Default to null
-                'account_status' => 'active' // Default to active
+                'account_status' => 'active', // Default to active
+                'paramedic_staff_identity_card_number' => $user->identity_card_number
             ]);
         }
 

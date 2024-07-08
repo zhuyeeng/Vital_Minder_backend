@@ -14,3 +14,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::get('/fetchStaff', [fetchStaffController::class, 'getAllMedicalStaff']);
 Route::post('/ban-user', [updateController::class, 'banUser']);
+Route::post('/unban-user', [updateController::class, 'unbanUser']);
+Route::put('/update-staff/{id}', [UpdateController::class, 'updateStaff']);

@@ -23,7 +23,8 @@ class Paramedic extends Model
         'field_experience',
         'assigned_area',
         'schedule',
-        'account_status'
+        'account_status',
+        'paramedic_staff_identity_card_number'
     ];
 
     public function user()

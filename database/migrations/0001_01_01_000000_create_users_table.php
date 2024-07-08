@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('phone_number')->nullable();
             $table->string('user_role');
             $table->string('identity_card_number')->unique();
+            $table->string('status')->default('active');
             $table->timestamps(); // Adds created_at and updated_at columns
         });
 

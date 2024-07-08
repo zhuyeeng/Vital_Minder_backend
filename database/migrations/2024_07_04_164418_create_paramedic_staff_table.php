@@ -22,8 +22,8 @@ class CreateParamedicStaffTable extends Migration
             $table->string('qualifications');
             $table->integer('field_experience');
             $table->string('assigned_area');
-            $table->date('schedule')->nullable();
-            $table->enum('account_status', ['active', 'inactive', 'suspended'])->default('active'); // Add account_status column
+            $table->enum('account_status', ['active', 'inactive', 'suspended', 'banned']);
+            $table->string('paramedic_staff_identity_card_number')->unique();
             $table->timestamps();
         });
     }
