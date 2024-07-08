@@ -1,13 +1,14 @@
 <?php
 
-// UserController.php
-namespace App\Http\api\authControllers;
+namespace App\Http\Controllers;
 
-use App\Models\Doctor;
-use App\Models\Paramedic;
 use Illuminate\Http\Request;
+use App\Models\Paramedic;
+use App\Models\Doctor;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
-class UserController extends authController
+class fetchStaffController extends Controller
 {
     public function getAllMedicalStaff()
     {
@@ -20,4 +21,3 @@ class UserController extends authController
         ]);
     }
 }
-

@@ -18,7 +18,7 @@ class AuthController extends Controller
     {
         // Log the entire request data
         Log::info($request->all());
-    
+
         // Define validation rules based on the user role
         $commonRules = [
             'name' => 'required',
@@ -30,9 +30,9 @@ class AuthController extends Controller
             'identity_card_number' => 'required|unique:users,identity_card_number',
             'user_role' => 'required|in:patient,doctor,paramedic'
         ];
-    
+
         $roleSpecificRules = [];
-    
+
         if ($request->user_role == 'doctor') {
             $roleSpecificRules = [
                 'qualifications' => 'required',
@@ -47,16 +47,16 @@ class AuthController extends Controller
                 'field_experience' => 'required|integer'
             ];
         }
-    
+
         $validator = Validator::make($request->all(), array_merge($commonRules, $roleSpecificRules));
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'false',
                 'data' => $validator->errors()
             ], 422);
         }
-    
+
         // Create the user
         $user = User::create([
             'username' => $request->name,
@@ -67,8 +67,9 @@ class AuthController extends Controller
             'gender' => $request->gender,
             'user_role' => $request->user_role,
             'identity_card_number' => $request->identity_card_number,
+            'status' => 'active' // Set status as active during registration
         ]);
-    
+
         // Create the role-specific model
         if ($user->user_role == 'patient') {
             Patient::create([
@@ -82,7 +83,6 @@ class AuthController extends Controller
                 'identity_card_number' => $user->identity_card_number
             ]);
         } else if ($user->user_role == 'doctor') {
-            //return $request;
             Doctor::create([
                 'user_id' => $user->id,
                 'doctor_name' => $user->username,
@@ -114,17 +114,16 @@ class AuthController extends Controller
                 'account_status' => 'active' // Default to active
             ]);
         }
-    
+
         // Generate token for the new user
         //$token = $user->createToken('auth_token')->plainTextToken;
-    
+
         return response()->json([
             'status' => 'true',
             'message' => 'User Register Successful',
             //'token' => $token
         ]);
     }
-
 
     public function login(Request $request)
     {
@@ -147,6 +146,13 @@ class AuthController extends Controller
                 'status' => 'false',
                 'message' => 'Invalid credentials'
             ], 401);
+        }
+
+        if ($user->status === 'banned') {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'Your account is banned. Please contact support.'
+            ], 403);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
