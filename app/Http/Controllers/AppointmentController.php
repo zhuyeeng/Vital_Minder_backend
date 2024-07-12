@@ -28,6 +28,7 @@ class AppointmentController extends Controller
             'details' => 'required|string',
             'paramedic_id' => 'nullable|exists:paramedic_staff,id',
             'doctor_id' => 'nullable|exists:doctors,id',
+            'patient_id' => 'required|exists:patients,id', // Ensure patient_id is validated
         ]);
 
         $appointment = new Appointment([
@@ -40,6 +41,7 @@ class AppointmentController extends Controller
             'details' => $request->details,
             'paramedic_id' => $request->paramedic_id,
             'doctor_id' => $request->doctor_id,
+            'patient_id' => $request->patient_id, // Include patient_id
         ]);
 
         $appointment->save();
