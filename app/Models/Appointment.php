@@ -21,7 +21,7 @@ class Appointment extends Model
         'reason',
         'paramedic_id',
         'doctor_id',
-        // 'medical_summary_id',
+        'patient_id'
     ];
 
     public function creator()

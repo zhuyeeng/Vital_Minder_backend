@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\Patient; // Ensure you have a Patient model
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,57 +48,40 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Fetch patient ID using user ID.
+     *
+     * @param  int  $userId
+     * @return \Illuminate\Http\Response
+     */
+    public function getPatientIdByUserId($userId)
+    {
+        $patient = Patient::where('user_id', $userId)->first();
+
+        if (!$patient) {
+            return response()->json(['error' => 'Patient not found'], 404);
+        }
+
+        return response()->json(['patient_id' => $patient->id, 'user_id' => $userId]);
+    }
+
+    /**
      * Display the specified appointment based on patient ID.
      *
      * @param  int  $patientId
      * @return \Illuminate\Http\Response
      */
-    public function showByPatientId($patientId)
+    public function showByUserId($userId)
     {
-        $appointments = Appointment::where('creator_id', $patientId)->with(['creator', 'paramedic', 'doctor'])->get();
+        // Find the patient ID associated with the user ID
+        $patient = Patient::where('user_id', $userId)->firstOrFail();
+        
+        // Fetch appointments for the found patient ID
+        $appointments = Appointment::with(['creator', 'paramedic', 'doctor'])
+                                    ->where('patient_id', $patient->id)
+                                    ->get();
+
         return response()->json($appointments);
     }
 
-    /**
-     * Update the specified appointment in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'date' => 'sometimes|required|date',
-            'time' => 'sometimes|required',
-            'type' => 'sometimes|required|string',
-            'blood_type' => 'sometimes|required|string',
-            'details' => 'sometimes|required|string',
-            'status' => 'sometimes|required|in:pending,accepted,completed,rejected',
-            'reason' => 'nullable|string',
-            'paramedic_id' => 'nullable|exists:paramedic_staff,id',
-            'doctor_id' => 'nullable|exists:doctors,id',
-        ]);
-
-        $appointment = Appointment::findOrFail($id);
-
-        $appointment->update($request->all());
-
-        return response()->json($appointment);
-    }
-
-    /**
-     * Remove the specified appointment from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $appointment = Appointment::findOrFail($id);
-        $appointment->delete();
-
-        return response()->json(null, 204);
-    }
+    // ... other existing methods
 }

@@ -27,7 +27,6 @@ return new class extends Migration
             $table->foreignId('paramedic_id')->nullable()->constrained('paramedic_staff')->onDelete('set null');
             $table->foreignId('doctor_id')->nullable()->constrained('doctors')->onDelete('set null');
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
-            //$table->foreignId('medical_summary_id')->nullable()->constrained('medical_summaries')->onDelete('set null');
             $table->timestamps();
         });
     }

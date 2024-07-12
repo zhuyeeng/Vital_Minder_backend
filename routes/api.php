@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\fetchStaffController;
 use App\Http\Controllers\updateController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\UserController;
 
 Route::post('/registeruser', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -15,13 +15,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
-//admin function
+// Admin functions
 Route::get('/fetchStaff', [fetchStaffController::class, 'getAllMedicalStaff']);
+Route::get('/fetchPatient', [fetchStaffController::class, 'getAllPatient']);
 Route::post('/ban-user', [updateController::class, 'banUser']);
 Route::post('/unban-user', [updateController::class, 'unbanUser']);
 Route::put('/update-staff/{id}', [UpdateController::class, 'updateStaff']);
 
-//patient function
+// Patient functions
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/fetch-reminder', [ReminderController::class, 'index']);
     Route::post('/add-reminder', [ReminderController::class, 'PatientStore']);
@@ -29,9 +30,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/update-reminder/{id}', [ReminderController::class, 'update']);
     Route::delete('/delete-reminder/{id}', [ReminderController::class, 'destroy']);
 
-    //appointment function
+    // Appointment functions
     Route::post('/appointments', [AppointmentController::class, 'store']);
     Route::get('/appointments/{patientId}', [AppointmentController::class, 'showByPatientId']);
     Route::put('/appointments/{id}', [AppointmentController::class, 'update']);
     Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
+    Route::get('/appointments/user/{userId}', [AppointmentController::class, 'showByUserId']);
 });
