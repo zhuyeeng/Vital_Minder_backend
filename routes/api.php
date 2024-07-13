@@ -7,6 +7,8 @@ use App\Http\Controllers\updateController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ResetPasswordController;
 
 Route::post('/registeruser', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -14,7 +16,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-Route::post('/password-reset-request', [AuthController::class, 'sendPasswordResetEmail']);
+Route::post('/password-reset-request', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 
 // Admin functions
 Route::get('/fetchStaff', [fetchStaffController::class, 'getAllMedicalStaff']);
