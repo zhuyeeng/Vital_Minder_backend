@@ -14,6 +14,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+Route::post('/password-reset-request', [AuthController::class, 'sendPasswordResetEmail']);
 
 // Admin functions
 Route::get('/fetchStaff', [fetchStaffController::class, 'getAllMedicalStaff']);
@@ -32,7 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Appointment functions
     Route::post('/appointments', [AppointmentController::class, 'store']);
-    Route::get('/appointments/{patientId}', [AppointmentController::class, 'showByPatientId']);
+    Route::get('/appointments/creator/{userId}', [AppointmentController::class, 'showByCreatorId']);
     Route::put('/appointments/{id}', [AppointmentController::class, 'update']);
     Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
     Route::get('/appointments/user/{userId}', [AppointmentController::class, 'showByUserId']);

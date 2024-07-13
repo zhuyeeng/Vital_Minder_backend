@@ -170,4 +170,35 @@ class AuthController extends Controller
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'Logged out successfully']);
     }
+
+    public function sendPasswordResetEmail(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'false',
+                'data' => $validator->errors()
+            ], 422);
+        }
+
+        $email = $request->input('email');
+        $token = Password::createToken(User::where('email', $email)->first());
+
+        $link = url('/reset-password') . '?token=' . $token . '&email=' . urlencode($email);
+
+        // Send email
+        Mail::send([], [], function ($message) use ($email, $link) {
+            $message->to($email)
+                    ->subject('Reset Password Notification')
+                    ->setBody('Click here to reset your password: ' . $link);
+        });
+
+        return response()->json([
+            'status' => 'true',
+            'message' => 'Password reset email sent.'
+        ]);
+    }
 }

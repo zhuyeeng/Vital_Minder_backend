@@ -11,7 +11,7 @@ class Appointment extends Model
 
     protected $fillable = [
         'creator_id',
-        'name',
+        'patient_name',
         'date',
         'time',
         'type',
@@ -22,7 +22,7 @@ class Appointment extends Model
         'paramedic_id',
         'doctor_id',
         'patient_id'
-    ];
+    ];    
 
     public function creator()
     {
@@ -37,6 +37,11 @@ class Appointment extends Model
     public function doctor()
     {
         return $this->belongsTo(Doctor::class, 'doctor_id');
+    }
+
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
     }
 
     // public function medicalSummary()

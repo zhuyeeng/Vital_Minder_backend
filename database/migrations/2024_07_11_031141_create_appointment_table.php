@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('creator_id')->constrained('users')->onDelete('cascade');
-            $table->string('name');
+            $table->string('patient_name');
             $table->date('date');
             $table->time('time');
             $table->string('type');
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('reason')->nullable();
             $table->foreignId('paramedic_id')->nullable()->constrained('paramedic_staff')->onDelete('set null');
             $table->foreignId('doctor_id')->nullable()->constrained('doctors')->onDelete('set null');
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
+            $table->foreignId('patient_id')->nullable()->constrained('patients')->onDelete('cascade');
             $table->timestamps();
         });
     }
