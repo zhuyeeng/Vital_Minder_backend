@@ -20,6 +20,7 @@ class CreatePatientsTable extends Migration
             $table->date('date_of_birth');
             $table->string('email')->unique();
             $table->string('password');
+            $table->string('profile_picture')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

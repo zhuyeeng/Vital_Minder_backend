@@ -25,6 +25,7 @@ class CreateDoctorsTable extends Migration
             $table->integer('years_of_experience');
             $table->enum('account_status', ['active', 'inactive', 'suspended', 'banned']);
             $table->string('doctor_identity_card_number')->unique();
+            $table->string('profile_picture')->nullable();
             $table->timestamps();
         });
     }
