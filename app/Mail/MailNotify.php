@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PostMail extends Mailable
+class MailNotify extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -27,7 +27,7 @@ class PostMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Post Mail',
+            subject: 'Mail Notify',
         );
     }
 
@@ -37,10 +37,10 @@ class PostMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.mail',// your blade view file name.
+
         );
     }
-
     /**
      * Get the attachments for the message.
      *
@@ -49,5 +49,13 @@ class PostMail extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    public function build()
+    {
+        return $this->subject('Mail Notify')
+        ->from('sendingemail@gmail.com')
+        ->view('mail');
+                    // Assuming your email view file is named 'mail_notify.blade.php'
     }
 }

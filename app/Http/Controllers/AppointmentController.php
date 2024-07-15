@@ -7,6 +7,7 @@ use App\Models\Patient; // Ensure you have a Patient model
 use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\WaitingList;
 
 class AppointmentController extends Controller
 {
@@ -124,5 +125,74 @@ class AppointmentController extends Controller
         return response()->json($appointment);
     }
 
-    // ... other existing methods
+    /**
+     * Get all pending appointments.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getPendingAppointments()
+    {
+        $appointments = Appointment::where('status', 'pending')->get();
+        return response()->json($appointments);
+    }
+
+    /**
+     * Update the appointment status.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,accepted,completed,rejected',
+            'reason' => 'nullable|string',
+            'doctor_id' => 'nullable|exists:doctors,id',
+            'paramedic_id' => 'nullable|exists:paramedic_staff,id',
+        ]);
+
+        $appointment = Appointment::findOrFail($id);
+        $appointment->status = $request->status;
+        if ($request->status === 'accepted') {
+            $appointment->doctor_id = $request->doctor_id;
+            $appointment->paramedic_id = $request->paramedic_id;
+        } elseif ($request->status === 'rejected') {
+            $appointment->reason = $request->reason;
+        }
+        $appointment->save();
+
+        return response()->json($appointment);
+    }
+    
+    public function getAcceptedAppointments()
+    {
+        $appointments = Appointment::where('status', 'accepted')
+                                    ->with(['patient', 'doctor'])
+                                    ->get();
+        return response()->json($appointments);
+    }
+
+    public function addToWaitingList(Appointment $appointment)
+    {
+        $maxWaitingNumber = WaitingList::max('waiting_number');
+        $waitingNumber = $maxWaitingNumber ? $maxWaitingNumber + 1 : 1;
+
+        $waitingList = WaitingList::create([
+            'appointment_id' => $appointment->id,
+            'patient_id' => $appointment->patient_id,
+            'doctor_id' => $appointment->doctor_id,
+            'waiting_number' => $waitingNumber,
+        ]);
+
+        return response()->json($waitingList);
+    }
+
+    public function getPendingAndAcceptedAppointments()
+    {
+        $appointments = Appointment::whereIn('status', ['pending', 'accepted'])
+                                    ->with(['patient', 'doctor'])
+                                    ->get();
+        return response()->json($appointments);
+    }
 }
