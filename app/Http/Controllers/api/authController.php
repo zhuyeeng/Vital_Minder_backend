@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Paramedic;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -169,5 +170,95 @@ class AuthController extends Controller
     {
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user(); // Ensure this uses the correct Auth facade
+
+        // Common validation rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'date_of_birth' => 'required|date',
+            'gender' => 'required|string',
+            'phone_number' => 'required|string|max:15',
+            'identity_card_number' => 'required|string|max:20|unique:users,identity_card_number,' . $user->id,
+            'profile_picture' => 'nullable|image|max:2048'
+        ];
+
+        // Additional validation rules for doctors and paramedics
+        if ($user->user_role == 'doctor') {
+            $rules = array_merge($rules, [
+                'specialization' => 'required|string|max:255',
+                'clinic_address' => 'required|string|max:255',
+                'qualifications' => 'required|string|max:255',
+                'years_of_experience' => 'required|integer'
+            ]);
+        } elseif ($user->user_role == 'paramedic') {
+            $rules = array_merge($rules, [
+                'qualifications' => 'required|string|max:255',
+                'assigned_area' => 'required|string|max:255',
+                'field_experience' => 'required|integer'
+            ]);
+        }
+
+        // Validate the request
+        $validatedData = $request->validate($rules);
+
+        // Handle profile image upload
+        if ($request->hasFile('profile_picture')) {
+            $profileImagePath = $request->file('profile_picture')->store('profile_picture', 'public');
+            $user->profile_picture = $profileImagePath;
+        }
+
+        // Update common user information
+        $user->username = $validatedData['name'];
+        $user->email = $validatedData['email'];
+        $user->date_of_birth = $validatedData['date_of_birth'];
+        $user->gender = $validatedData['gender'];
+        $user->phone_number = $validatedData['phone_number'];
+        $user->identity_card_number = $validatedData['identity_card_number'];
+        $user->save();
+
+        // Update role-specific information
+        if ($user->user_role == 'patient') {
+            $patient = Patient::where('user_id', $user->id)->first();
+            $patient->update([
+                'username' => $user->username,
+                'phone_number' => $user->phone_number,
+                'email' => $user->email,
+                'gender' => $user->gender,
+                'date_of_birth' => $user->date_of_birth,
+                'identity_card_number' => $user->identity_card_number
+            ]);
+        } elseif ($user->user_role == 'doctor') {
+            $doctor = Doctor::where('user_id', $user->id)->first();
+            $doctor->update([
+                'doctor_name' => $user->username,
+                'doctor_phone_number' => $user->phone_number,
+                'doctor_email' => $user->email,
+                'doctor_gender' => $user->gender,
+                'doctor_date_of_birth' => $user->date_of_birth,
+                'specialization' => $validatedData['specialization'],
+                'clinic_address' => $validatedData['clinic_address'],
+                'qualifications' => $validatedData['qualifications'],
+                'years_of_experience' => $validatedData['years_of_experience']
+            ]);
+        } elseif ($user->user_role == 'paramedic') {
+            $paramedic = Paramedic::where('user_id', $user->id)->first();
+            $paramedic->update([
+                'paramedic_staff_name' => $user->username,
+                'paramedic_staff_phone_number' => $user->phone_number,
+                'paramedic_staff_email' => $user->email,
+                'paramedic_staff_gender' => $user->gender,
+                'paramedic_staff_date_of_birth' => $user->date_of_birth,
+                'qualifications' => $validatedData['qualifications'],
+                'assigned_area' => $validatedData['assigned_area'],
+                'field_experience' => $validatedData['field_experience']
+            ]);
+        }
+
+        return response()->json(['message' => 'Profile updated successfully', 'user' => $user], 200);
     }
 }

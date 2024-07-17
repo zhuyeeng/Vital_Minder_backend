@@ -23,7 +23,7 @@ Route::get('/fetchStaff', [fetchStaffController::class, 'getAllMedicalStaff']);
 Route::get('/fetchPatient', [fetchStaffController::class, 'getAllPatient']);
 Route::post('/ban-user', [updateController::class, 'banUser']);
 Route::post('/unban-user', [updateController::class, 'unbanUser']);
-Route::put('/update-staff/{id}', [UpdateController::class, 'updateStaff']);
+Route::put('/update-staff/{id}', [updateController::class, 'updateStaff']);
 
 // Securing patient functions and appointments with authentication
 Route::middleware('auth:sanctum')->group(function () {
@@ -63,6 +63,12 @@ Route::get('/fetchMedicalStaffWithDetails', [fetchStaffController::class, 'getAl
 
 // New route to get paramedic ID by user ID
 Route::get('/paramedic-id/{userId}', [fetchStaffController::class, 'getParamedicIdByUserId']);
+
+// Update Profile Function
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/update-profile', [AuthController::class, 'updateProfile']);
+    Route::post('/update-password', [AuthController::class, 'updatePassword']);
+});
 
 Route::post('/test', function () {
     Mail::to('zhuyeeng0524@gmail.com')->send(new MailNotify()); //email should put in the controller
