@@ -7,34 +7,42 @@ use App\Http\Controllers\updateController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\UserController;
-use App\Mail\MailNotify;
 use App\Http\Controllers\WaitingListController;
+use App\Http\Controllers\patientReportController;
+use App\Http\Controllers\MedicationReportController;
+use App\Mail\MailNotify;
 
 // Authentication routes
 Route::post('/registeruser', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/update-profile', [AuthController::class, 'updateProfile']);
+    Route::post('/update-password', [AuthController::class, 'updatePassword']);
 });
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 // Admin functions
 Route::get('/fetchStaff', [fetchStaffController::class, 'getAllMedicalStaff']);
-// Route::get('/fetchPatient', [fetchStaffController::class, 'getAllPatient']);
 Route::post('/ban-user', [updateController::class, 'banUser']);
 Route::post('/unban-user', [updateController::class, 'unbanUser']);
 Route::put('/update-staff/{id}', [updateController::class, 'updateStaff']);
+Route::get('/fetchMedicalStaffWithDetails', [fetchStaffController::class, 'getAllMedicalStaffWithDetails']);
+Route::get('/staff/{userId}', [fetchStaffController::class, 'getStaffByUserId']);
 
-// Securing patient functions and appointments with authentication
+// Reminder functions
 Route::middleware('auth:sanctum')->group(function () {
-    // Reminder functions
     Route::get('/fetch-reminder', [ReminderController::class, 'index']);
     Route::post('/add-reminder', [ReminderController::class, 'PatientStore']);
     Route::get('/fetch-reminder/{id}', [ReminderController::class, 'show']);
     Route::put('/update-reminder/{id}', [ReminderController::class, 'update']);
     Route::delete('/delete-reminder/{id}', [ReminderController::class, 'destroy']);
+});
 
-    // Appointment functions
+// Appointment functions
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appointments', [AppointmentController::class, 'store']);
     Route::get('/appointments/creator/{userId}', [AppointmentController::class, 'showByCreatorId']);
     Route::put('/appointments/{id}', [AppointmentController::class, 'update']);
@@ -45,36 +53,37 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/appointments/status/{id}', [AppointmentController::class, 'updateStatus']);
     Route::get('/appointments/pending-and-accepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
     Route::get('/appointments-summary', [AppointmentController::class, 'getAppointmentsSummary']);
+    Route::get('/appointments/accepted', [AppointmentController::class, 'getAcceptedAppointments']);
+    Route::get('/appointments/doctor/{doctorId}', [AppointmentController::class, 'getAppointmentsByDoctorId']);
+    Route::get('/doctor-id/{userId}', [AppointmentController::class, 'getDoctorIdByUserId']);
 });
 
-// Testing the fetch function for fetching the accepted and pending appointment (Work)
-Route::get('/appointmentPendingAccepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
-
-//paramedic staff function
 // Waiting list functions
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/appointments/accepted', [AppointmentController::class, 'getAcceptedAppointments']);
     Route::get('/waiting-list', [WaitingListController::class, 'getWaitingList']);
+    Route::post('/waiting-list', [WaitingListController::class, 'addToWaitingList']);
 });
 
-Route::middleware('auth:sanctum')->post('/waiting-list', [WaitingListController::class, 'addToWaitingList']);
-
-// New route to get all medical staff with details
-Route::get('/fetchMedicalStaffWithDetails', [fetchStaffController::class, 'getAllMedicalStaffWithDetails']);
-
-// New route to get paramedic ID by user ID
-Route::get('/paramedic-id/{userId}', [fetchStaffController::class, 'getParamedicIdByUserId']);
-
-// Update Profile Function
+// Patient Report functions
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/update-profile', [AuthController::class, 'updateProfile']);
-    Route::post('/update-password', [AuthController::class, 'updatePassword']);
+    Route::post('/patient-reports', [patientReportController::class, 'storePatientReport']);
+    Route::post('/save-diagnosis-note', [MedicationReportController::class, 'store']);
+    Route::get('/patients', [fetchStaffController::class, 'getAllPatients']);
 });
 
-Route::get('/staff/{userId}', [fetchStaffController::class, 'getStaffByUserId']);
-
+// Testing email function
 Route::post('/test', function () {
-    Mail::to('zhuyeeng0524@gmail.com')->send(new MailNotify()); //email should put in the controller
+    Mail::to('zhuyeeng0524@gmail.com')->send(new MailNotify());
     return response()->json(['message' => 'Email sent successfully.']);
 });
 
+// General routes
+Route::get('/paramedic-id/{userId}', [fetchStaffController::class, 'getParamedicIdByUserId']);
+Route::get('/appointmentPendingAccepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/medication-reports', [MedicationReportController::class, 'index']);
+    Route::get('/medication-reports/{medicationReport}', [MedicationReportController::class, 'showMedicationReport']);
+    Route::post('/medication-reports', [MedicationReportController::class, 'storeMedicationReport']);
+    Route::patch('/medication-reports/{medicationReport}/status', [MedicationReportController::class, 'updateReportStatus']);
+});

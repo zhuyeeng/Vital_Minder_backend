@@ -25,6 +25,7 @@ class CreateParamedicStaffTable extends Migration
             $table->enum('account_status', ['active', 'inactive', 'suspended', 'banned']);
             $table->string('paramedic_staff_identity_card_number')->unique();
             $table->string('profile_picture')->nullable();
+            $table->string('certificate'); // Add this line
             $table->timestamps();
         });
     }

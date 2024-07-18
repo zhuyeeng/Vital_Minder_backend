@@ -26,6 +26,7 @@ class CreateDoctorsTable extends Migration
             $table->enum('account_status', ['active', 'inactive', 'suspended', 'banned']);
             $table->string('doctor_identity_card_number')->unique();
             $table->string('profile_picture')->nullable();
+            $table->string('certificate'); // Add this line
             $table->timestamps();
         });
     }

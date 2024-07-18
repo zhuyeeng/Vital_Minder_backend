@@ -202,4 +202,19 @@ class AppointmentController extends Controller
 
         return response()->json($appointments);
     }
+
+    public function getDoctorIdByUserId($userId)
+    {
+        $doctor = Doctor::where('user_id', $userId)->first();
+        if (!$doctor) {
+            return response()->json(['error' => 'Doctor not found'], 404);
+        }
+        return response()->json(['doctor_id' => $doctor->id]);
+    }
+
+    public function getAppointmentsByDoctorId($doctorId)
+    {
+        $appointments = Appointment::where('doctor_id', $doctorId)->with(['patient'])->get();
+        return response()->json($appointments);
+    }
 }

@@ -19,12 +19,12 @@ class Doctor extends Model
         'doctor_date_of_birth',
         'specialization',
         'clinic_address',
-        'qualifications', // Corrected this line
+        'qualifications',
         'years_of_experience',
-        'schedule',
         'account_status',
+        'doctor_identity_card_number',
         'profile_picture',
-        'doctor_identity_card_number'
+        'certificate'
     ];
 
     public function user()

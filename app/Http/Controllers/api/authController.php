@@ -39,13 +39,15 @@ class AuthController extends Controller
                 'qualifications' => 'required',
                 'specialization' => 'required',
                 'clinic_address' => 'required',
-                'years_of_experience' => 'required|integer'
+                'years_of_experience' => 'required|integer',
+                'certificate' => 'required|file|mimes:pdf|max:2048' // Added certificate validation
             ];
         } elseif ($request->user_role == 'paramedic') {
             $roleSpecificRules = [
                 'qualifications' => 'required',
                 'assigned_area' => 'required',
-                'field_experience' => 'required|integer'
+                'field_experience' => 'required|integer',
+                'certificate' => 'required|file|mimes:pdf|max:2048' // Added certificate validation
             ];
         }
 
@@ -70,6 +72,12 @@ class AuthController extends Controller
             'identity_card_number' => $request->identity_card_number,
             'status' => 'active' // Set status as active during registration
         ]);
+
+        // Store the certificate file if it exists
+        $certificatePath = null;
+        if ($request->hasFile('certificate')) {
+            $certificatePath = $request->file('certificate')->store('certificates');
+        }
 
         // Create the role-specific model
         if ($user->user_role == 'patient') {
@@ -97,7 +105,8 @@ class AuthController extends Controller
                 'qualifications' => $request->qualifications, // Ensure this matches
                 'years_of_experience' => $request->years_of_experience,
                 'account_status' => 'active', // Default to active
-                'doctor_identity_card_number' => $user->identity_card_number
+                'doctor_identity_card_number' => $user->identity_card_number,
+                'certificate' => $certificatePath // Save certificate path
             ]);
         } else if ($user->user_role == 'paramedic') {
             Paramedic::create([
@@ -112,7 +121,8 @@ class AuthController extends Controller
                 'field_experience' => $request->field_experience,
                 'assigned_area' => $request->assigned_area,
                 'account_status' => 'active', // Default to active
-                'paramedic_staff_identity_card_number' => $user->identity_card_number
+                'paramedic_staff_identity_card_number' => $user->identity_card_number,
+                'certificate' => $certificatePath // Save certificate path
             ]);
         }
 

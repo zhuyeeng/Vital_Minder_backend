@@ -22,14 +22,19 @@ class Paramedic extends Model
         'qualifications',
         'field_experience',
         'assigned_area',
-        'schedule',
         'account_status',
+        'paramedic_staff_identity_card_number',
         'profile_picture',
-        'paramedic_staff_identity_card_number'
+        'certificate'
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(PatientReport::class);
     }
 }

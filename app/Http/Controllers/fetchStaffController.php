@@ -23,14 +23,11 @@ class fetchStaffController extends Controller
         ]);
     }
 
-    // public function getAllPatient()
-    // {
-    //     $patients = Patient::all();
-
-    //     return response()->json([
-    //         'patients' => $patients
-    //     ]);
-    // }
+    public function getAllPatients()
+    {
+        $patients = Patient::all(['id', 'username', 'identity_card_number']);
+        return response()->json($patients);
+    }
 
     public function getAllMedicalStaffWithDetails()
     {

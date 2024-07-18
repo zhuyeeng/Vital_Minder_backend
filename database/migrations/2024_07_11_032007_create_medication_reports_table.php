@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
             $table->foreignId('appointment_id')->constrained('appointments')->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            $table->foreignId('paramedic_staff_id')->constrained('paramedic_staff')->onDelete('cascade');
+            $table->foreignId('paramedic_staff_id')->nullable()->constrained('paramedic_staff')->onDelete('cascade');
             $table->string('report_title');
             $table->date('report_created_date');
             $table->text('physical_examination_note');
