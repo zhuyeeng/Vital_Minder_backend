@@ -24,6 +24,7 @@ class Paramedic extends Model
         'assigned_area',
         'schedule',
         'account_status',
+        'profile_picture',
         'paramedic_staff_identity_card_number'
     ];
 

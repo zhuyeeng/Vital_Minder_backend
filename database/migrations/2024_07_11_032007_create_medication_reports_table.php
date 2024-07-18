@@ -20,10 +20,10 @@ return new class extends Migration
             $table->string('report_title');
             $table->date('report_created_date');
             $table->text('physical_examination_note');
-            $table->text('diagnostic_tests_results');
+            $table->text('diagnostic_tests_results')->nullable();
             $table->text('treatment_plan_instruction');
-            $table->text('doctor_note');
-            $table->enum('report_status', ['ended', 'pending']);
+            $table->text('doctor_note')->nullable();
+            $table->enum('report_status', ['ended', 'pending'])->default('pending');
             $table->timestamps();
         });
     }

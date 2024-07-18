@@ -195,4 +195,11 @@ class AppointmentController extends Controller
                                     ->get();
         return response()->json($appointments);
     }
+
+    public function getAppointmentsSummary()
+    {
+        $appointments = Appointment::select('patient_name', 'type', 'date')->get();
+
+        return response()->json($appointments);
+    }
 }

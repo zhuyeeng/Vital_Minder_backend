@@ -208,7 +208,7 @@ class AuthController extends Controller
 
         // Handle profile image upload
         if ($request->hasFile('profile_picture')) {
-            $profileImagePath = $request->file('profile_picture')->store('profile_picture', 'public');
+            $profileImagePath = $request->file('profile_picture')->store('profile_images', 'public');
             $user->profile_picture = $profileImagePath;
         }
 
@@ -230,7 +230,8 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'gender' => $user->gender,
                 'date_of_birth' => $user->date_of_birth,
-                'identity_card_number' => $user->identity_card_number
+                'identity_card_number' => $user->identity_card_number,
+                'profile_picture' => $user->profile_picture // Ensure profile_picture is updated
             ]);
         } elseif ($user->user_role == 'doctor') {
             $doctor = Doctor::where('user_id', $user->id)->first();
@@ -243,7 +244,8 @@ class AuthController extends Controller
                 'specialization' => $validatedData['specialization'],
                 'clinic_address' => $validatedData['clinic_address'],
                 'qualifications' => $validatedData['qualifications'],
-                'years_of_experience' => $validatedData['years_of_experience']
+                'years_of_experience' => $validatedData['years_of_experience'],
+                'profile_picture' => $user->profile_picture // Ensure profile_picture is updated
             ]);
         } elseif ($user->user_role == 'paramedic') {
             $paramedic = Paramedic::where('user_id', $user->id)->first();
@@ -255,10 +257,46 @@ class AuthController extends Controller
                 'paramedic_staff_date_of_birth' => $user->date_of_birth,
                 'qualifications' => $validatedData['qualifications'],
                 'assigned_area' => $validatedData['assigned_area'],
-                'field_experience' => $validatedData['field_experience']
+                'field_experience' => $validatedData['field_experience'],
+                'profile_picture' => $user->profile_picture // Ensure profile_picture is updated
             ]);
         }
 
         return response()->json(['message' => 'Profile updated successfully', 'user' => $user], 200);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'false',
+                'data' => $validator->errors()
+            ], 422);
+        }
+
+        // Check if the old password is correct
+        if (!Hash::check($request->old_password, $user->password)) {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'The provided old password is incorrect.'
+            ], 400);
+        }
+
+        // Update the user's password
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'status' => 'true',
+            'message' => 'Password updated successfully'
+        ]);
     }
 }

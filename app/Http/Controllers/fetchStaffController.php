@@ -23,14 +23,14 @@ class fetchStaffController extends Controller
         ]);
     }
 
-    public function getAllPatient()
-    {
-        $patients = Patient::all();
+    // public function getAllPatient()
+    // {
+    //     $patients = Patient::all();
 
-        return response()->json([
-            'patients' => $patients
-        ]);
-    }
+    //     return response()->json([
+    //         'patients' => $patients
+    //     ]);
+    // }
 
     public function getAllMedicalStaffWithDetails()
     {
@@ -58,5 +58,31 @@ class fetchStaffController extends Controller
         }
 
         return response()->json(['paramedic_id' => $paramedic->id]);
+    }
+
+    // Method to fetch staff information by user ID
+    public function getStaffByUserId($userId)
+    {
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        if ($user->user_role === 'doctor') {
+            $details = Doctor::where('user_id', $userId)->first();
+        } elseif ($user->user_role === 'paramedic') {
+            $details = Paramedic::where('user_id', $userId)->first();
+        } elseif($user->user_role === "patient") {
+            $details = Patient::where('user_id',$userId)->first();
+        }else {
+            return response()->json(['error' => 'User is not a doctor or paramedic'], 404);
+        }
+
+        if (!$details) {
+            return response()->json(['error' => 'Details not found'], 404);
+        }
+
+        return response()->json(['user' => $user, 'details' => $details]);
     }
 }

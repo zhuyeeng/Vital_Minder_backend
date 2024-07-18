@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 
 // Admin functions
 Route::get('/fetchStaff', [fetchStaffController::class, 'getAllMedicalStaff']);
-Route::get('/fetchPatient', [fetchStaffController::class, 'getAllPatient']);
+// Route::get('/fetchPatient', [fetchStaffController::class, 'getAllPatient']);
 Route::post('/ban-user', [updateController::class, 'banUser']);
 Route::post('/unban-user', [updateController::class, 'unbanUser']);
 Route::put('/update-staff/{id}', [updateController::class, 'updateStaff']);
@@ -43,7 +43,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appointments/patient-id/{userId}', [AppointmentController::class, 'getPatientIdByUserId']);
     Route::get('/appointments', [AppointmentController::class, 'getPendingAppointments']);
     Route::put('/appointments/status/{id}', [AppointmentController::class, 'updateStatus']);
-    Route::get('/appointments/pending-and-accepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']); // New route
+    Route::get('/appointments/pending-and-accepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
+    Route::get('/appointments-summary', [AppointmentController::class, 'getAppointmentsSummary']);
 });
 
 // Testing the fetch function for fetching the accepted and pending appointment (Work)
@@ -70,7 +71,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/update-password', [AuthController::class, 'updatePassword']);
 });
 
+Route::get('/staff/{userId}', [fetchStaffController::class, 'getStaffByUserId']);
+
 Route::post('/test', function () {
     Mail::to('zhuyeeng0524@gmail.com')->send(new MailNotify()); //email should put in the controller
     return response()->json(['message' => 'Email sent successfully.']);
 });
+

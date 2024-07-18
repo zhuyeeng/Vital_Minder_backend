@@ -19,7 +19,8 @@ class User extends Authenticatable
         'gender',
         'phone_number',
         'user_role',
-        'identity_card_number'
+        'identity_card_number',
+        'profile_picture'
     ];
 
     public function patient()

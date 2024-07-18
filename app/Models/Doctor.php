@@ -23,6 +23,7 @@ class Doctor extends Model
         'years_of_experience',
         'schedule',
         'account_status',
+        'profile_picture',
         'doctor_identity_card_number'
     ];
 
