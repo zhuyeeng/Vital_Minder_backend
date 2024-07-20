@@ -11,10 +11,13 @@ use App\Http\Controllers\WaitingListController;
 use App\Http\Controllers\patientReportController;
 use App\Http\Controllers\MedicationReportController;
 use App\Mail\MailNotify;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ScheduleController;
 
 // Authentication routes
 Route::post('/registeruser', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -62,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/waiting-list', [WaitingListController::class, 'getWaitingList']);
     Route::post('/waiting-list', [WaitingListController::class, 'addToWaitingList']);
+    Route::get('/waiting-list/doctor', [WaitingListController::class, 'getDoctorWaitingList']); // New route
 });
 
 // Patient Report functions
@@ -71,19 +75,32 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/patients', [fetchStaffController::class, 'getAllPatients']);
 });
 
-// Testing email function
-Route::post('/test', function () {
-    Mail::to('zhuyeeng0524@gmail.com')->send(new MailNotify());
-    return response()->json(['message' => 'Email sent successfully.']);
-});
-
 // General routes
 Route::get('/paramedic-id/{userId}', [fetchStaffController::class, 'getParamedicIdByUserId']);
 Route::get('/appointmentPendingAccepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
 
+// Chatbot and Scheduling routes
+Route::post('/chat', [ChatController::class, 'chat']);
+
+Route::get('/patients/search/{username}', [fetchStaffController::class, 'searchPatientsByUsername']);
+Route::get('/patient-reports/{patientId}', [PatientReportController::class, 'getReportsByPatientId']);
+Route::get('/medication-reports/{patientId}', [MedicationReportController::class, 'getMedicationReportsByPatientId']);
+
+// Medication Report functions
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/medication-reports', [MedicationReportController::class, 'index']);
     Route::get('/medication-reports/{medicationReport}', [MedicationReportController::class, 'showMedicationReport']);
     Route::post('/medication-reports', [MedicationReportController::class, 'storeMedicationReport']);
     Route::patch('/medication-reports/{medicationReport}/status', [MedicationReportController::class, 'updateReportStatus']);
 });
+
+Route::post('/doctors/{id}/schedule', [ScheduleController::class, 'setSchedule']);
+Route::get('/doctors/{id}/schedule', [ScheduleController::class, 'getSchedule']);
+Route::post('/paramedic_staff/{id}/schedule', [ScheduleController::class, 'setSchedule']);
+Route::get('/paramedic_staff/{id}/schedule', [ScheduleController::class, 'getSchedule']);
+Route::get('/schedules', [ScheduleController::class, 'getAllSchedules']);
+
+Route::get('/patient-id/{userId}', [fetchStaffController::class, 'getPatientIdByUserId']);
+
+// routes/web.php or routes/api.php
+Route::get('/doctors', [fetchStaffController::class, 'getAllDoctors']);

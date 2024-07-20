@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('patient_name'); // Ensure this column is correctly defined
             $table->foreignId('patient_id')->nullable()->constrained('patients')->onDelete('cascade');
             $table->foreignId('doctor_id')->constrained('doctors')->onDelete('cascade');
+            $table->string('status')->nullable()->default(null);
             $table->integer('waiting_number')->default(0);
             $table->timestamps();
         });
-        
     }
 
     public function down()

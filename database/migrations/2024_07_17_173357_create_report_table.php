@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('patient_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
+            $table->string('patient_name');
             $table->foreignId('paramedic_staff_id')->constrained('paramedic_staff')->onDelete('cascade');
             $table->string('report'); // This will store the file path of the PDF
             $table->timestamps();

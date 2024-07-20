@@ -20,6 +20,7 @@ class MedicationReport extends Model
         'diagnostic_tests_results',
         'treatment_plan_instruction',
         'doctor_note',
+        'patient_name',
         'report_status'
     ];
 

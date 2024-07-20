@@ -11,7 +11,7 @@ class MedicationReportController extends Controller
     public function storeMedicationReport(Request $request)
     {
         $request->validate([
-            'patient_id' => 'required|exists:patients,id',
+            'patient_id' => 'nullable|exists:patients,id',
             'appointment_id' => 'required|exists:appointments,id',
             'created_by' => 'required|exists:doctors,id',
             'paramedic_staff_id' => 'nullable|exists:paramedic_staff,id',
@@ -21,7 +21,8 @@ class MedicationReportController extends Controller
             'diagnostic_tests_results' => 'nullable|string',
             'treatment_plan_instruction' => 'required|string',
             'doctor_note' => 'nullable|string',
-            'report_status' => 'required|in:ended,pending'
+            'report_status' => 'required|in:ended,pending',
+            'patient_name' => 'required|string|max:255', // Add this line
         ]);
 
         $medicationReport = MedicationReport::create($request->all());
@@ -44,14 +45,23 @@ class MedicationReportController extends Controller
     // Show a single medication report
     public function showMedicationReport(MedicationReport $medicationReport)
     {
+        $medicationReport->load('creator');
         return response()->json(['data' => $medicationReport], 200);
     }
 
     // List all medication reports
     public function index()
     {
-        $medicationReports = MedicationReport::all();
+        $medicationReports = MedicationReport::with('creator')->get();
 
         return response()->json(['data' => $medicationReports], 200);
     }
+
+    // Method to get medication reports by patient ID
+    public function getMedicationReportsByPatientId($patientId)
+    {
+        $medicationReports = MedicationReport::with('creator')->where('patient_id', $patientId)->get();
+        return response()->json($medicationReports);
+    }
 }
+

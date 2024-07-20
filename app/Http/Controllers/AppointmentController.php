@@ -30,8 +30,8 @@ class AppointmentController extends Controller
             'details' => 'required|string',
             'paramedic_id' => 'nullable|exists:paramedic_staff,id',
             'doctor_id' => 'nullable|exists:doctors,id',
-            'patient_name' => 'required|string', // Add this validation
-            'patient_id' => 'nullable|exists:patients,id', // Update to nullable
+            'patient_name' => 'required|string',
+            'patient_id' => 'nullable|exists:patients,id',
         ]);
 
         $appointment = new Appointment([
@@ -44,8 +44,8 @@ class AppointmentController extends Controller
             'details' => $request->details,
             'paramedic_id' => $request->paramedic_id,
             'doctor_id' => $request->doctor_id,
-            'patient_name' => $request->patient_name, // Add this field
-            'patient_id' => $request->patient_id, // Include patient_id
+            'patient_name' => $request->patient_name,
+            'patient_id' => $request->patient_id,
         ]);
 
         $appointment->save();
@@ -165,28 +165,41 @@ class AppointmentController extends Controller
         return response()->json($appointment);
     }
     
+    // public function getAcceptedAppointments()
+    // {
+    //     $appointments = Appointment::where('status', 'accepted')
+    //                                 ->with(['patient', 'doctor'])
+    //                                 ->get();
+    //     return response()->json($appointments);
+    // }
+
     public function getAcceptedAppointments()
     {
+        $waitingListAppointmentIds = WaitingList::pluck('appointment_id')->toArray();
+    
         $appointments = Appointment::where('status', 'accepted')
+                                    ->whereNotIn('id', $waitingListAppointmentIds)
                                     ->with(['patient', 'doctor'])
                                     ->get();
+    
         return response()->json($appointments);
-    }
+    }    
 
-    public function addToWaitingList(Appointment $appointment)
-    {
-        $maxWaitingNumber = WaitingList::max('waiting_number');
-        $waitingNumber = $maxWaitingNumber ? $maxWaitingNumber + 1 : 1;
+    
+    // public function addToWaitingList(Appointment $appointment)
+    // {
+    //     $maxWaitingNumber = WaitingList::max('waiting_number');
+    //     $waitingNumber = $maxWaitingNumber ? $maxWaitingNumber + 1 : 1;
 
-        $waitingList = WaitingList::create([
-            'appointment_id' => $appointment->id,
-            'patient_id' => $appointment->patient_id,
-            'doctor_id' => $appointment->doctor_id,
-            'waiting_number' => $waitingNumber,
-        ]);
+    //     $waitingList = WaitingList::create([
+    //         'appointment_id' => $appointment->id,
+    //         'patient_id' => $appointment->patient_id,
+    //         'doctor_id' => $appointment->doctor_id,
+    //         'waiting_number' => $waitingNumber,
+    //     ]);
 
-        return response()->json($waitingList);
-    }
+    //     return response()->json($waitingList);
+    // }
 
     public function getPendingAndAcceptedAppointments()
     {
@@ -216,5 +229,17 @@ class AppointmentController extends Controller
     {
         $appointments = Appointment::where('doctor_id', $doctorId)->with(['patient'])->get();
         return response()->json($appointments);
+    }
+
+    public function scheduleAppointment(Request $request)
+    {
+        $appointment = Appointment::create([
+            'details' => $request->details,
+            'date' => $request->date,
+            'time' => $request->time,
+            // Add other fields as needed
+        ]);
+
+        return response()->json(['message' => 'Appointment scheduled successfully!']);
     }
 }

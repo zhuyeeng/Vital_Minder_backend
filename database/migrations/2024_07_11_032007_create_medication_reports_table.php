@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('medication_reports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
+            $table->foreignId('patient_id')->nullable()->constrained('patients')->onDelete('cascade');
             $table->foreignId('appointment_id')->constrained('appointments')->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('paramedic_staff_id')->nullable()->constrained('paramedic_staff')->onDelete('cascade');
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->text('diagnostic_tests_results')->nullable();
             $table->text('treatment_plan_instruction');
             $table->text('doctor_note')->nullable();
+            $table->string('patient_name');
             $table->enum('report_status', ['ended', 'pending'])->default('pending');
             $table->timestamps();
         });

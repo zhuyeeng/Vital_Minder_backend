@@ -11,6 +11,7 @@ class PatientReport extends Model
 
     protected $fillable = [
         'patient_id',
+        'patient_name',
         'paramedic_staff_id',
         'report',
     ];

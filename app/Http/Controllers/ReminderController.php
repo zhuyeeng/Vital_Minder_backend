@@ -90,4 +90,19 @@ class ReminderController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function scheduleReminder(Request $request)
+    {
+        $reminder = Reminder::create([
+            'reminder_name' => $request->reminder_name,
+            'medication_type' => $request->medication_type,
+            'pills_number' => $request->pills_number,
+            'time' => $request->time,
+            'frequency' => $request->frequency,
+            // Add other fields as needed
+        ]);
+
+        return response()->json(['message' => 'Reminder set successfully!']);
+    }
+
 }

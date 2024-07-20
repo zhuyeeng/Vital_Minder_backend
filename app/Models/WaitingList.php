@@ -15,6 +15,7 @@ class WaitingList extends Model
         'patient_name',
         'patient_id',
         'waiting_number',
+        'status', // Ensure 'status' is included in fillable fields
     ];
 
     public function patient()
@@ -26,5 +27,9 @@ class WaitingList extends Model
     {
         return $this->belongsTo(Doctor::class);
     }
-}
 
+    public function appointment()
+    {
+        return $this->belongsTo(Appointment::class);
+    }
+}

@@ -12,6 +12,7 @@ use App\Models\Paramedic;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -22,7 +23,7 @@ class AuthController extends Controller
 
         // Define validation rules based on the user role
         $commonRules = [
-            'name' => 'required',
+            'name' => 'required|unique:users,username', // Ensure username is unique
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
             'phone_number' => 'required',
@@ -76,7 +77,14 @@ class AuthController extends Controller
         // Store the certificate file if it exists
         $certificatePath = null;
         if ($request->hasFile('certificate')) {
-            $certificatePath = $request->file('certificate')->store('certificates');
+            // Ensure the directory exists
+            $directory = 'public/certificates';
+            if (!Storage::exists($directory)) {
+                Storage::makeDirectory($directory);
+            }
+
+            // Store the certificate in the public/certificates directory
+            $certificatePath = $request->file('certificate')->store($directory);
         }
 
         // Create the role-specific model
@@ -307,6 +315,52 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'true',
             'message' => 'Password updated successfully'
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+            'new_password' => 'required|min:6|confirmed'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'false',
+                'data' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        if ($user->user_role == 'patient') {
+            $patient = Patient::where('user_id', $user->id)->first();
+            $patient->password = $user->password;
+            $patient->save();
+        } elseif ($user->user_role == 'doctor') {
+            $doctor = Doctor::where('user_id', $user->id)->first();
+            $doctor->doctor_password = $user->password;
+            $doctor->save();
+        } elseif ($user->user_role == 'paramedic') {
+            $paramedic = Paramedic::where('user_id', $user->id)->first();
+            $paramedic->paramedic_staff_password = $user->password;
+            $paramedic->save();
+        }
+
+        return response()->json([
+            'status' => 'true',
+            'message' => 'Password reset successfully'
         ]);
     }
 }

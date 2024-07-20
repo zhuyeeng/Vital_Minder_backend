@@ -82,4 +82,36 @@ class fetchStaffController extends Controller
 
         return response()->json(['user' => $user, 'details' => $details]);
     }
+
+    public function getPatientIdByUserId($userId)
+    {
+        $patient = Patient::where('user_id', $userId)->first();
+
+        if (!$patient) {
+            return response()->json(['error' => 'Patient not found'], 404);
+        }
+
+        return response()->json(['patient_id' => $patient->id]);
+    }
+
+    public function searchPatientsByUsername($username)
+    {
+        $users = User::where('username', 'LIKE', "%$username%")->get();
+        $patients = [];
+        
+        foreach ($users as $user) {
+            $patient = Patient::where('user_id', $user->id)->first();
+            if ($patient) {
+                $patients[] = $patient;
+            }
+        }
+        
+        return response()->json($patients);
+    }
+
+    public function getAllDoctors()
+    {
+        $doctors = Doctor::all(['doctor_name', 'doctor_email', 'doctor_phone_number']);
+        return response()->json($doctors);
+    }
 }
