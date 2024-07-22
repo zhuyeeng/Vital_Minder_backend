@@ -36,7 +36,7 @@ class MedicationReport extends Model
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(Doctor::class, 'created_by');
     }
 
     public function paramedicStaff()

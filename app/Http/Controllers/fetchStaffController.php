@@ -14,12 +14,39 @@ class fetchStaffController extends Controller
 {
     public function getAllMedicalStaff()
     {
+        // Get all doctors and paramedics
         $doctors = Doctor::all();
         $paramedics = Paramedic::all();
 
+        // Initialize arrays to hold detailed information
+        $doctorDetails = [];
+        $paramedicDetails = [];
+
+        // Fetch user details for doctors
+        foreach ($doctors as $doctor) {
+            $user = User::find($doctor->user_id);
+            if ($user) {
+                $doctorDetails[] = [
+                    'user' => $user,
+                    'details' => $doctor
+                ];
+            }
+        }
+
+        // Fetch user details for paramedics
+        foreach ($paramedics as $paramedic) {
+            $user = User::find($paramedic->user_id);
+            if ($user) {
+                $paramedicDetails[] = [
+                    'user' => $user,
+                    'details' => $paramedic
+                ];
+            }
+        }
+
         return response()->json([
-            'doctors' => $doctors,
-            'paramedics' => $paramedics
+            'doctors' => $doctorDetails,
+            'paramedics' => $paramedicDetails
         ]);
     }
 
@@ -44,17 +71,6 @@ class fetchStaffController extends Controller
         });
 
         return response()->json($users);
-    }
-
-    public function getParamedicIdByUserId($userId)
-    {
-        $paramedic = Paramedic::where('user_id', $userId)->first();
-
-        if (!$paramedic) {
-            return response()->json(['error' => 'Paramedic not found'], 404);
-        }
-
-        return response()->json(['paramedic_id' => $paramedic->id]);
     }
 
     // Method to fetch staff information by user ID
@@ -96,20 +112,16 @@ class fetchStaffController extends Controller
 
     public function searchPatientsByUsername($username)
     {
-        $users = User::where('username', 'LIKE', "%$username%")->get();
-        $patients = [];
-        
-        foreach ($users as $user) {
-            $patient = Patient::where('user_id', $user->id)->first();
-            if ($patient) {
-                $patients[] = $patient;
-            }
+        $patients = Patient::where('username', 'LIKE', "%$username%")->get();
+
+        if ($patients->isEmpty()) {
+            return response()->json(['error' => 'No patients found'], 404);
         }
-        
+
         return response()->json($patients);
     }
 
-    public function getAllDoctors()
+    public function getAllDoctors()//need modify a bit
     {
         $doctors = Doctor::all(['doctor_name', 'doctor_email', 'doctor_phone_number']);
         return response()->json($doctors);

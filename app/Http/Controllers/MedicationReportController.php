@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MedicationReport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MedicationReportController extends Controller
 {
@@ -25,18 +26,25 @@ class MedicationReportController extends Controller
             'patient_name' => 'required|string|max:255', // Add this line
         ]);
 
+        // Check if a report with the same appointment_id already exists
+        $existingReport = MedicationReport::where('appointment_id', $request->appointment_id)->first();
+        if ($existingReport) {
+            return response()->json(['message' => 'A medication report for this appointment already exists.'], 400);
+        }
+
         $medicationReport = MedicationReport::create($request->all());
 
         return response()->json(['message' => 'Medication report created successfully', 'data' => $medicationReport], 201);
     }
 
     // Update the report status to ended
-    public function updateReportStatus(Request $request, MedicationReport $medicationReport)
+    public function updateReportStatus(Request $request, $medicationReportId)
     {
         $request->validate([
             'report_status' => 'required|in:ended,pending',
         ]);
 
+        $medicationReport = MedicationReport::findOrFail($medicationReportId);
         $medicationReport->update(['report_status' => $request->report_status]);
 
         return response()->json(['message' => 'Report status updated successfully', 'data' => $medicationReport], 200);
@@ -60,8 +68,29 @@ class MedicationReportController extends Controller
     // Method to get medication reports by patient ID
     public function getMedicationReportsByPatientId($patientId)
     {
-        $medicationReports = MedicationReport::with('creator')->where('patient_id', $patientId)->get();
-        return response()->json($medicationReports);
+        $medicationReports = DB::table('medication_reports')
+            ->join('doctors', 'medication_reports.created_by', '=', 'doctors.id')
+            ->select(
+                'medication_reports.*',
+                'doctors.doctor_name as creator_name'
+            )
+            ->where('medication_reports.patient_id', $patientId)
+            ->get();
+
+        return response()->json(['data' => $medicationReports], 200);
+    }
+
+    public function getMedicationReportByAppointmentId($appointmentId)
+    {
+        $medicationReport = MedicationReport::where('appointment_id', $appointmentId)
+                                            ->with('creator') // Assuming you want to load related data
+                                            ->first();
+
+        if (!$medicationReport) {
+            return response()->json(['message' => 'Medication report not found.'], 404);
+        }
+
+        return response()->json(['data' => $medicationReport], 200);
     }
 }
 

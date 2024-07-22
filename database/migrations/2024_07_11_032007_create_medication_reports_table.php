@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('patient_id')->nullable()->constrained('patients')->onDelete('cascade');
             $table->foreignId('appointment_id')->constrained('appointments')->onDelete('cascade');
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('created_by')->constrained('doctors')->onDelete('cascade');
             $table->foreignId('paramedic_staff_id')->nullable()->constrained('paramedic_staff')->onDelete('cascade');
             $table->string('report_title');
             $table->date('report_created_date');

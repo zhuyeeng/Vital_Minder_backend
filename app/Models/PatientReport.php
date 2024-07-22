@@ -14,6 +14,7 @@ class PatientReport extends Model
         'patient_name',
         'paramedic_staff_id',
         'report',
+        'report_title', // Add this line
     ];
 
     public function patient()

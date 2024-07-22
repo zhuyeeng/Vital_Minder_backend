@@ -59,16 +59,6 @@ class AppointmentController extends Controller
      * @param  int  $userId
      * @return \Illuminate\Http\Response
      */
-    public function getPatientIdByUserId($userId)
-    {
-        $patient = Patient::where('user_id', $userId)->first();
-
-        if (!$patient) {
-            return response()->json(['error' => 'Patient not found'], 404);
-        }
-
-        return response()->json(['patient_id' => $patient->id, 'user_id' => $userId]);
-    }
 
     /**
      * Display the specified appointment based on patient ID.
@@ -76,17 +66,21 @@ class AppointmentController extends Controller
      * @param  int  $patientId
      * @return \Illuminate\Http\Response
      */
-    public function showByUserId($userId)
+    public function getAppointmentsByUserIdAndPatientId(Request $request)
     {
-        // Find the patient ID associated with the user ID
-        $patient = Patient::where('user_id', $userId)->firstOrFail();
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'patient_id' => 'required|exists:patients,id',
+        ]);
 
-        // Fetch appointments for the found patient ID including patient, doctor, and paramedic details
+        // Fetch appointments where the user is the creator or the appointment is for the user
         $appointments = Appointment::with(['creator', 'paramedic', 'doctor', 'patient'])
-                                    ->where('patient_id', $patient->id)
+                                    ->where(function ($query) use ($request) {
+                                        $query->where('creator_id', $request->user_id)
+                                            ->orWhere('patient_id', $request->patient_id);
+                                    })
                                     ->get();
 
-        // Return the appointments data with the related details
         return response()->json($appointments);
     }
 
@@ -165,13 +159,6 @@ class AppointmentController extends Controller
         return response()->json($appointment);
     }
     
-    // public function getAcceptedAppointments()
-    // {
-    //     $appointments = Appointment::where('status', 'accepted')
-    //                                 ->with(['patient', 'doctor'])
-    //                                 ->get();
-    //     return response()->json($appointments);
-    // }
 
     public function getAcceptedAppointments()
     {
@@ -184,22 +171,6 @@ class AppointmentController extends Controller
     
         return response()->json($appointments);
     }    
-
-    
-    // public function addToWaitingList(Appointment $appointment)
-    // {
-    //     $maxWaitingNumber = WaitingList::max('waiting_number');
-    //     $waitingNumber = $maxWaitingNumber ? $maxWaitingNumber + 1 : 1;
-
-    //     $waitingList = WaitingList::create([
-    //         'appointment_id' => $appointment->id,
-    //         'patient_id' => $appointment->patient_id,
-    //         'doctor_id' => $appointment->doctor_id,
-    //         'waiting_number' => $waitingNumber,
-    //     ]);
-
-    //     return response()->json($waitingList);
-    // }
 
     public function getPendingAndAcceptedAppointments()
     {

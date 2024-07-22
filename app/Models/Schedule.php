@@ -35,6 +35,7 @@ class Schedule extends Model
 
     public function paramedicStaff()
     {
-        return $this->belongsTo(ParamedicStaff::class);
+        return $this->belongsTo(Paramedic::class, 'paramedic_staff_id');
     }
 }
+

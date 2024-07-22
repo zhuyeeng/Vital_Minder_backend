@@ -14,7 +14,8 @@ class PatientReportController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'paramedic_staff_id' => 'required|exists:paramedic_staff,id',
             'report' => 'required|file|mimes:pdf|max:2048',
-            'patient_name' => 'required|string|max:255', // Add this line
+            'patient_name' => 'required|string|max:255',
+            'report_title' => 'required|string|max:255', // Add this line
         ]);
 
         $reportPath = null;
@@ -33,7 +34,8 @@ class PatientReportController extends Controller
             'patient_id' => $request->patient_id,
             'paramedic_staff_id' => $request->paramedic_staff_id,
             'report' => $reportPath,
-            'patient_name' => $request->patient_name, // Add this line
+            'patient_name' => $request->patient_name,
+            'report_title' => $request->report_title, // Add this line
         ]);
 
         return response()->json(['message' => 'Report uploaded successfully'], 200);

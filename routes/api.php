@@ -47,11 +47,11 @@ Route::middleware('auth:sanctum')->group(function () {
 // Appointment functions
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appointments', [AppointmentController::class, 'store']);
-    Route::get('/appointments/creator/{userId}', [AppointmentController::class, 'showByCreatorId']);
+    Route::get('/appointments/user', [AppointmentController::class, 'getAppointmentsByUserIdAndPatientId']);
     Route::put('/appointments/{id}', [AppointmentController::class, 'update']);
-    Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
+    // Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
     Route::get('/appointments/user/{userId}', [AppointmentController::class, 'showByUserId']);
-    Route::get('/appointments/patient-id/{userId}', [AppointmentController::class, 'getPatientIdByUserId']);
+    Route::get('/appointments/patient-id/{userId}', [fetchStaffController::class, 'getPatientIdByUserId']);
     Route::get('/appointments', [AppointmentController::class, 'getPendingAppointments']);
     Route::put('/appointments/status/{id}', [AppointmentController::class, 'updateStatus']);
     Route::get('/appointments/pending-and-accepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
@@ -61,11 +61,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/doctor-id/{userId}', [AppointmentController::class, 'getDoctorIdByUserId']);
 });
 
-// Waiting list functions
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/waiting-list', [WaitingListController::class, 'getWaitingList']);
     Route::post('/waiting-list', [WaitingListController::class, 'addToWaitingList']);
-    Route::get('/waiting-list/doctor', [WaitingListController::class, 'getDoctorWaitingList']); // New route
+    Route::get('/waiting-list/doctor/{doctorId}', [WaitingListController::class, 'getDoctorWaitingList']); 
 });
 
 // Patient Report functions
@@ -73,10 +72,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/patient-reports', [patientReportController::class, 'storePatientReport']);
     Route::post('/save-diagnosis-note', [MedicationReportController::class, 'store']);
     Route::get('/patients', [fetchStaffController::class, 'getAllPatients']);
+    Route::get('/patients-id', [fetchStaffController::class, 'getPatientIdByUserId']);
 });
 
 // General routes
-Route::get('/paramedic-id/{userId}', [fetchStaffController::class, 'getParamedicIdByUserId']);
+// Route::get('/paramedic-id/{userId}', [fetchStaffController::class, 'getParamedicIdByUserId']);
 Route::get('/appointmentPendingAccepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
 
 // Chatbot and Scheduling routes
@@ -85,22 +85,31 @@ Route::post('/chat', [ChatController::class, 'chat']);
 Route::get('/patients/search/{username}', [fetchStaffController::class, 'searchPatientsByUsername']);
 Route::get('/patient-reports/{patientId}', [PatientReportController::class, 'getReportsByPatientId']);
 Route::get('/medication-reports/{patientId}', [MedicationReportController::class, 'getMedicationReportsByPatientId']);
+Route::get('/medication-reports/appointment/{appointmentId}', [MedicationReportController::class, 'getMedicationReportByAppointmentId']);
 
 // Medication Report functions
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/medication-reports', [MedicationReportController::class, 'index']);
     Route::get('/medication-reports/{medicationReport}', [MedicationReportController::class, 'showMedicationReport']);
     Route::post('/medication-reports', [MedicationReportController::class, 'storeMedicationReport']);
-    Route::patch('/medication-reports/{medicationReport}/status', [MedicationReportController::class, 'updateReportStatus']);
 });
 
-Route::post('/doctors/{id}/schedule', [ScheduleController::class, 'setSchedule']);
-Route::get('/doctors/{id}/schedule', [ScheduleController::class, 'getSchedule']);
-Route::post('/paramedic_staff/{id}/schedule', [ScheduleController::class, 'setSchedule']);
-Route::get('/paramedic_staff/{id}/schedule', [ScheduleController::class, 'getSchedule']);
 Route::get('/schedules', [ScheduleController::class, 'getAllSchedules']);
-
-Route::get('/patient-id/{userId}', [fetchStaffController::class, 'getPatientIdByUserId']);
+Route::post('/save-schedule', [ScheduleController::class, 'saveSchedule']);
+Route::get('/schedule/{id}/{role}', [ScheduleController::class, 'getSchedule']);
+Route::get('/schedule/latest/{id}/{role}', [ScheduleController::class, 'getLatestSchedule']);
 
 // routes/web.php or routes/api.php
 Route::get('/doctors', [fetchStaffController::class, 'getAllDoctors']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Other routes...
+
+    // Waiting list status update
+    Route::put('/waiting-lists/{appointmentId}/status', [WaitingListController::class, 'updateStatus']);
+
+    // Medication report status update
+    Route::put('/medication-reports/{medicationReportId}/status', [MedicationReportController::class, 'updateReportStatus']);
+});
+
+Route::get('/medical-staff', [fetchStaffController::class, 'getAllMedicalStaff']);
