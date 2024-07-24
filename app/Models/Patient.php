@@ -18,7 +18,14 @@ class Patient extends Model
         'email',
         'password',
         'user_id',
-        'profile_picture'
+        'profile_picture',
+        'blood_pressure',
+        'blood_sugar',
+        'height',
+        'weight',
+        'medical_history',
+        'medications',
+        'emergency_contact'
     ];
 
     public function user()

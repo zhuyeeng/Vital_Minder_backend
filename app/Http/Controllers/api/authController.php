@@ -318,6 +318,47 @@ class AuthController extends Controller
         ]);
     }
 
+    public function updateHealthInfo(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'blood_pressure' => 'nullable|string|max:255',
+            'blood_sugar' => 'nullable|string|max:255',
+            'height' => 'nullable|numeric|between:0,999.99',
+            'weight' => 'nullable|numeric|between:0,999.99',
+            'medical_history' => 'nullable|string',
+            'medications' => 'nullable|string|max:255',
+            'emergency_contact' => 'nullable|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'false',
+                'data' => $validator->errors()
+            ], 422);
+        }
+
+        // Update the health information
+        $patient = Patient::where('user_id', $user->id)->first();
+        $patient->update([
+            'blood_pressure' => $request->blood_pressure,
+            'blood_sugar' => $request->blood_sugar,
+            'height' => $request->height,
+            'weight' => $request->weight,
+            'medical_history' => $request->medical_history,
+            'medications' => $request->medications,
+            'emergency_contact' => $request->emergency_contact
+        ]);
+
+        return response()->json([
+            'status' => 'true',
+            'message' => 'Health information updated successfully',
+            'user' => $user
+        ], 200);
+    }
+
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
