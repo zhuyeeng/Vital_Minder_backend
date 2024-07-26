@@ -62,6 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/doctor-id/{userId}', [AppointmentController::class, 'getDoctorIdByUserId']);
 });
 
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/waiting-list', [WaitingListController::class, 'getWaitingList']);
     Route::post('/waiting-list', [WaitingListController::class, 'addToWaitingList']);
@@ -77,8 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // General routes
-// Route::get('/paramedic-id/{userId}', [fetchStaffController::class, 'getParamedicIdByUserId']);
-Route::get('/appointmentPendingAccepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
+Route::get('/paramedic-id/{userId}', [fetchStaffController::class, 'getParamedicIdByUserId']);
+// Route::get('/appointmentPendingAccepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
 
 // Chatbot and Scheduling routes
 Route::post('/chat', [ChatController::class, 'chat']);

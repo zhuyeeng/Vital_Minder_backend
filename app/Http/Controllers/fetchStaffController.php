@@ -50,6 +50,15 @@ class fetchStaffController extends Controller
         ]);
     }
 
+    public function getParamedicIdByUserId($userId)
+    {
+        $paramedic = Paramedic::where('user_id', $userId)->first();
+        if (!$paramedic) {
+            return response()->json(['error' => 'Paramedic not found'], 404);
+        }
+        return response()->json(['paramedic_id' => $paramedic->id]);
+    }
+
     public function getAllPatients()
     {
         $patients = Patient::all(['id', 'username', 'identity_card_number']);
