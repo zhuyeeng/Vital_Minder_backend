@@ -10,6 +10,25 @@ use Illuminate\Http\Request;
 class ReminderController extends Controller
 {
     // Get all reminders for the authenticated user
+    // public function index(Request $request)
+    // {
+    //     $userId = $request->user()->id;
+
+    //     // Join the users and patients tables and fetch the reminders
+    //     $reminders = Reminder::with(['user', 'patient'])
+    //         ->whereHas('patient', function($query) use ($userId) {
+    //             $query->where('user_id', $userId);
+    //         })
+    //         ->get();
+
+    //     // Append the username of the creator (from users table) to each reminder
+    //     foreach ($reminders as $reminder) {
+    //         $reminder->creator_username = User::find($reminder->created_by)->username;
+    //     }
+
+    //     return response()->json($reminders);
+    // }
+
     public function index(Request $request)
     {
         $userId = $request->user()->id;
@@ -19,6 +38,7 @@ class ReminderController extends Controller
             ->whereHas('patient', function($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
+            ->orWhere('created_by', $userId)
             ->get();
 
         // Append the username of the creator (from users table) to each reminder

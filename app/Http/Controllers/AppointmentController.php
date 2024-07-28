@@ -32,10 +32,19 @@ class AppointmentController extends Controller
             'doctor_id' => 'nullable|exists:doctors,id',
             'patient_name' => 'required|string',
             'patient_id' => 'nullable|exists:patients,id',
+            'status' => 'nullable|string'
         ]);
 
+        $user = Auth::user();
+
+        // Determine the status based on the user's role
+        $status = 'pending'; // Default status
+        if ($user->user_role == 'paramedic') {
+            $status = 'accepted';
+        }
+
         $appointment = new Appointment([
-            'creator_id' => Auth::id(),
+            'creator_id' => $user->id,
             'name' => $request->name,
             'date' => $request->date,
             'time' => $request->time,
@@ -46,6 +55,7 @@ class AppointmentController extends Controller
             'doctor_id' => $request->doctor_id,
             'patient_name' => $request->patient_name,
             'patient_id' => $request->patient_id,
+            'status' => $status
         ]);
 
         $appointment->save();
@@ -66,23 +76,39 @@ class AppointmentController extends Controller
      * @param  int  $patientId
      * @return \Illuminate\Http\Response
      */
+    // public function getAppointmentsByUserIdAndPatientId(Request $request)
+    // {
+    //     $request->validate([
+    //         'user_id' => 'required|exists:users,id',
+    //         'patient_id' => 'required|exists:patients,id',
+    //     ]);
+
+    //     // Fetch appointments where the user is the creator or the appointment is for the user
+    //     $appointments = Appointment::with(['creator', 'paramedic', 'doctor', 'patient'])
+    //                                 ->where(function ($query) use ($request) {
+    //                                     $query->where('creator_id', $request->user_id)
+    //                                         ->orWhere('patient_id', $request->patient_id);
+    //                                 })
+    //                                 ->get();
+
+    //     return response()->json($appointments);
+    // }
+
     public function getAppointmentsByUserIdAndPatientId(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'patient_id' => 'required|exists:patients,id',
-        ]);
+        $userId = auth()->id();
+        $patientId = $request->query('patient_id');
 
-        // Fetch appointments where the user is the creator or the appointment is for the user
         $appointments = Appointment::with(['creator', 'paramedic', 'doctor', 'patient'])
-                                    ->where(function ($query) use ($request) {
-                                        $query->where('creator_id', $request->user_id)
-                                            ->orWhere('patient_id', $request->patient_id);
+                                    ->where(function ($query) use ($userId, $patientId) {
+                                        $query->where('creator_id', $userId)
+                                            ->orWhere('patient_id', $patientId);
                                     })
                                     ->get();
 
         return response()->json($appointments);
     }
+
 
     public function showByCreatorId($userId)
     {
@@ -160,17 +186,32 @@ class AppointmentController extends Controller
     }
     
 
+    // public function getAcceptedAppointments()
+    // {
+    //     $waitingListAppointmentIds = WaitingList::pluck('appointment_id')->toArray();
+    
+    //     $appointments = Appointment::where('status', 'accepted')
+    //                                 ->whereNotIn('id', $waitingListAppointmentIds)
+    //                                 ->with(['patient', 'doctor'])
+    //                                 ->get();
+    
+    //     return response()->json($appointments);
+    // }    
+
     public function getAcceptedAppointments()
     {
-        $waitingListAppointmentIds = WaitingList::pluck('appointment_id')->toArray();
-    
-        $appointments = Appointment::where('status', 'accepted')
-                                    ->whereNotIn('id', $waitingListAppointmentIds)
-                                    ->with(['patient', 'doctor'])
-                                    ->get();
-    
-        return response()->json($appointments);
-    }    
+        $userId = auth()->id();
+
+        $acceptedAppointments = Appointment::where('status', 'accepted')
+                                            ->where('creator_id', $userId)
+                                            ->orWhereHas('patient', function($query) use ($userId) {
+                                                $query->where('user_id', $userId);
+                                            })
+                                            ->with(['patient', 'doctor'])
+                                            ->get();
+
+        return response()->json($acceptedAppointments);
+    }
 
     public function getPendingAndAcceptedAppointments()
     {

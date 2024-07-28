@@ -50,8 +50,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appointments', [AppointmentController::class, 'store']);
     Route::get('/appointments/user', [AppointmentController::class, 'getAppointmentsByUserIdAndPatientId']);
     Route::put('/appointments/{id}', [AppointmentController::class, 'update']);
-    // Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
-    Route::get('/appointments/user/{userId}', [AppointmentController::class, 'showByUserId']);
     Route::get('/appointments/patient-id/{userId}', [fetchStaffController::class, 'getPatientIdByUserId']);
     Route::get('/appointments', [AppointmentController::class, 'getPendingAppointments']);
     Route::put('/appointments/status/{id}', [AppointmentController::class, 'updateStatus']);
@@ -61,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appointments/doctor/{doctorId}', [AppointmentController::class, 'getAppointmentsByDoctorId']);
     Route::get('/doctor-id/{userId}', [AppointmentController::class, 'getDoctorIdByUserId']);
 });
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
