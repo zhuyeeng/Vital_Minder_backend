@@ -359,49 +359,93 @@ class AuthController extends Controller
         ], 200);
     }
 
+    // public function resetPassword(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'email' => 'required|email|exists:users,email',
+    //         'new_password' => 'required|min:6|confirmed'
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => 'false',
+    //             'data' => $validator->errors()
+    //         ], 422);
+    //     }
+
+    //     $user = User::where('email', $request->email)->first();
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'status' => 'false',
+    //             'message' => 'User not found'
+    //         ], 404);
+    //     }
+
+    //     $user->password = Hash::make($request->new_password);
+    //     $user->save();
+
+    //     if ($user->user_role == 'patient') {
+    //         $patient = Patient::where('user_id', $user->id)->first();
+    //         $patient->password = $user->password;
+    //         $patient->save();
+    //     } elseif ($user->user_role == 'doctor') {
+    //         $doctor = Doctor::where('user_id', $user->id)->first();
+    //         $doctor->doctor_password = $user->password;
+    //         $doctor->save();
+    //     } elseif ($user->user_role == 'paramedic') {
+    //         $paramedic = Paramedic::where('user_id', $user->id)->first();
+    //         $paramedic->paramedic_staff_password = $user->password;
+    //         $paramedic->save();
+    //     }
+
+    //     return response()->json([
+    //         'status' => 'true',
+    //         'message' => 'Password reset successfully'
+    //     ]);
+    // }
     public function resetPassword(Request $request)
     {
+        // Validate the request
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email',
-            'new_password' => 'required|min:6|confirmed'
+            'email' => 'required|email',
+            'new_password' => 'required|min:6|confirmed',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'false',
                 'data' => $validator->errors()
             ], 422);
         }
-
+    
+        // Find the user by email
         $user = User::where('email', $request->email)->first();
-
+    
         if (!$user) {
             return response()->json([
                 'status' => 'false',
-                'message' => 'User not found'
+                'message' => 'User not found.'
             ], 404);
         }
-
+    
+        // Check if the user role is 'admin'
+        if ($user->user_role === 'admin') {
+            return response()->json([
+                'status' => 'false',
+                'message' => 'Please contact admin.'
+            ], 403);
+        }
+    
+        // Update the user's password
         $user->password = Hash::make($request->new_password);
         $user->save();
-
-        if ($user->user_role == 'patient') {
-            $patient = Patient::where('user_id', $user->id)->first();
-            $patient->password = $user->password;
-            $patient->save();
-        } elseif ($user->user_role == 'doctor') {
-            $doctor = Doctor::where('user_id', $user->id)->first();
-            $doctor->doctor_password = $user->password;
-            $doctor->save();
-        } elseif ($user->user_role == 'paramedic') {
-            $paramedic = Paramedic::where('user_id', $user->id)->first();
-            $paramedic->paramedic_staff_password = $user->password;
-            $paramedic->save();
-        }
-
+    
         return response()->json([
             'status' => 'true',
-            'message' => 'Password reset successfully'
+            'message' => 'Password updated successfully'
         ]);
     }
+    
+
 }

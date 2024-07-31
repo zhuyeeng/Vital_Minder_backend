@@ -186,17 +186,17 @@ class AppointmentController extends Controller
     }
     
 
-    // public function getAcceptedAppointments()
-    // {
-    //     $waitingListAppointmentIds = WaitingList::pluck('appointment_id')->toArray();
+    public function getAcceptedAppointmentsParamedic()
+    {
+        $waitingListAppointmentIds = WaitingList::pluck('appointment_id')->toArray();
     
-    //     $appointments = Appointment::where('status', 'accepted')
-    //                                 ->whereNotIn('id', $waitingListAppointmentIds)
-    //                                 ->with(['patient', 'doctor'])
-    //                                 ->get();
+        $appointments = Appointment::where('status', 'accepted')
+                                    ->whereNotIn('id', $waitingListAppointmentIds)
+                                    ->with(['patient', 'doctor'])
+                                    ->get();
     
-    //     return response()->json($appointments);
-    // }    
+        return response()->json($appointments);
+    }    
 
     public function getAcceptedAppointments()
     {

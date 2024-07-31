@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appointments/pending-and-accepted', [AppointmentController::class, 'getPendingAndAcceptedAppointments']);
     Route::get('/appointments-summary', [AppointmentController::class, 'getAppointmentsSummary']);
     Route::get('/appointments/accepted', [AppointmentController::class, 'getAcceptedAppointments']);
+    Route::get('/appointments/accepted-paramedic', [AppointmentController::class, 'getAcceptedAppointmentsParamedic']);
     Route::get('/appointments/doctor/{doctorId}', [AppointmentController::class, 'getAppointmentsByDoctorId']);
     Route::get('/doctor-id/{userId}', [AppointmentController::class, 'getDoctorIdByUserId']);
 });
