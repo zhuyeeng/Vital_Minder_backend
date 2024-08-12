@@ -179,11 +179,13 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'true',
             'message' => 'Login Successful',
-            'user' => [
-                'id' => $user->id,
-                'email' => $user->email,
-                'user_role' => $user->user_role
-            ],
+            // 'user' => [
+            //     'id' => $user->id,
+            //     'email' => $user->email,
+            //     'user_role' => $user->user_role,
+            //     'username' => $user->username
+            // ],
+            'user' => $user,
             'token' => $token
         ]);
     }
@@ -263,6 +265,7 @@ class AuthController extends Controller
                 'doctor_email' => $user->email,
                 'doctor_gender' => $user->gender,
                 'doctor_date_of_birth' => $user->date_of_birth,
+                'doctor_identity_card_number' => $user->identity_card_number,
                 'specialization' => $validatedData['specialization'],
                 'clinic_address' => $validatedData['clinic_address'],
                 'qualifications' => $validatedData['qualifications'],
@@ -277,6 +280,7 @@ class AuthController extends Controller
                 'paramedic_staff_email' => $user->email,
                 'paramedic_staff_gender' => $user->gender,
                 'paramedic_staff_date_of_birth' => $user->date_of_birth,
+                'paramedic_staff_identity_card_number' => $user->identity_card_number,
                 'qualifications' => $validatedData['qualifications'],
                 'assigned_area' => $validatedData['assigned_area'],
                 'field_experience' => $validatedData['field_experience'],
@@ -284,7 +288,7 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Profile updated successfully', 'user' => $user], 200);
+        return response()->json(['message' => 'Profile updated successfully'], 200);
     }
 
     public function updatePassword(Request $request)
@@ -359,55 +363,9 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'true',
             'message' => 'Health information updated successfully',
-            'user' => $user
         ], 200);
     }
 
-    // public function resetPassword(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'email' => 'required|email|exists:users,email',
-    //         'new_password' => 'required|min:6|confirmed'
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'status' => 'false',
-    //             'data' => $validator->errors()
-    //         ], 422);
-    //     }
-
-    //     $user = User::where('email', $request->email)->first();
-
-    //     if (!$user) {
-    //         return response()->json([
-    //             'status' => 'false',
-    //             'message' => 'User not found'
-    //         ], 404);
-    //     }
-
-    //     $user->password = Hash::make($request->new_password);
-    //     $user->save();
-
-    //     if ($user->user_role == 'patient') {
-    //         $patient = Patient::where('user_id', $user->id)->first();
-    //         $patient->password = $user->password;
-    //         $patient->save();
-    //     } elseif ($user->user_role == 'doctor') {
-    //         $doctor = Doctor::where('user_id', $user->id)->first();
-    //         $doctor->doctor_password = $user->password;
-    //         $doctor->save();
-    //     } elseif ($user->user_role == 'paramedic') {
-    //         $paramedic = Paramedic::where('user_id', $user->id)->first();
-    //         $paramedic->paramedic_staff_password = $user->password;
-    //         $paramedic->save();
-    //     }
-
-    //     return response()->json([
-    //         'status' => 'true',
-    //         'message' => 'Password reset successfully'
-    //     ]);
-    // }
     public function resetPassword(Request $request)
     {
         // Validate the request
@@ -451,5 +409,4 @@ class AuthController extends Controller
         ]);
     }
     
-
 }

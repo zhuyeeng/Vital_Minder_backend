@@ -116,7 +116,7 @@ class fetchStaffController extends Controller
             return response()->json(['error' => 'Patient not found'], 404);
         }
 
-        return response()->json(['patient_id' => $patient->id]);
+        return response()->json(['patient' => $patient]);
     }
 
     public function searchPatientsByUsername($username)
