@@ -56,17 +56,42 @@ class WaitingListController extends Controller
         return response()->json($waitingList);
     }
 
-    Public function updateStatus(Request $request, $appointmentId)
+    // Public function updateStatus(Request $request, $appointmentId)
+    // {
+    //     $request->validate([
+    //         'status' => 'required|string',
+    //     ]);
+
+    //     $waitingList = WaitingList::where('appointment_id', $appointmentId)->firstOrFail();
+    //     $waitingList->status = $request->status;
+    //     $waitingList->save();
+
+    //     return response()->json(['message' => 'Waiting list status updated successfully', 'data' => $waitingList], 200);
+    // }
+
+    public function updateStatus(Request $request, $appointmentId)
     {
         $request->validate([
             'status' => 'required|string',
         ]);
 
+        // Update the waiting list status
         $waitingList = WaitingList::where('appointment_id', $appointmentId)->firstOrFail();
         $waitingList->status = $request->status;
         $waitingList->save();
 
-        return response()->json(['message' => 'Waiting list status updated successfully', 'data' => $waitingList], 200);
+        // Update the appointment status
+        $appointment = Appointment::where('id', $appointmentId)->firstOrFail();
+        $appointment->status = $request->status; // Assuming you want the appointment status to match the waiting list status
+        $appointment->save();
+
+        return response()->json([
+            'message' => 'Waiting list and appointment status updated successfully',
+            'data' => [
+                'waitingList' => $waitingList,
+                'appointment' => $appointment
+            ]
+        ], 200);
     }
 }
 
